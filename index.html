@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.4.6/tailwind.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <title>MandalaFlow</title>
+  <style>
+    canvas {
+      touch-action: none;
+      user-select: none;
+      transition: background-color 0.2s;
+    }
+    [data-tooltip] {
+      position: relative;
+      cursor: pointer;
+    }
+    [data-tooltip]:before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a202c;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s;
+      z-index: 100;
+    }
+    [data-tooltip]:hover:before {
+      opacity: 1;
+    }
+    .popup-control {
+      position: absolute;
+      background: white;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 200;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    body.night .popup-control {
+      background: #2d3748;
+      color: #e2e8f0;
+    }
+    .popup-control input {
+      width: 120px;
+    }
+    .mode-active {
+      background-color: #4a5568 !important;
+      color: white !important;
+    }
+    .double-active {
+      background-color: #4a5568 !important;
+      color: white !important;
+    }
+    .circle-btn {
+      transition: all 0.2s;
+    }
+    .circle-btn:active {
+      transform: scale(0.95);
+    }
+    /* Modo noche para los contenedores */
+    body.night .palette,
+    body.night .tools {
+      background-color: #1e1e2f !important;
+    }
+    body.night .tools button.bg-gray-200 {
+      background-color: #4a5568;
+      color: #edf2f7;
+    }
+    body.night .tools button.bg-red-400 {
+      background-color: #c53030;
+    }
+    body.night .tools a.bg-gray-900 {
+      background-color: #000;
+    }
+    /* Ajuste del borde del círculo blanco y negro */
+    .border-white {
+      border: 2px solid white;
+    }
+    .border-black {
+      border: 2px solid black;
+    }
+  </style>
+</head>
+<body class="box-border w-screen h-screen">
+  <div id="app" class="fixed m-0 pl-12 pt-2 flex flex-col justify-start items-center h-auto w-auto z-50 lg:flex-col lg:w-32">
+    
+    <!-- Paleta de colores -->
+    <div class="palette flex bg-white rounded-t-full rounded-b-full p-2 shadow-md justify-evenly mr-4 lg:mb-3 lg:flex-col lg:mr-auto">
+      <button id="darkgray" class="bg-gray-900 w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto border-2 border-white" data-tooltip="Negro"></button>
+      <button id="whitecolor" class="bg-white w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto border-2 border-black" data-tooltip="Blanco"></button>
+      <button id="red" class="bg-red-400 w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Rojo"></button>
+      <button id="green" class="bg-teal-400 w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Verde"></button>
+      <button id="purple" class="bg-purple-500 w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Morado"></button>
+      <!-- Arcoiris más brillante -->
+      <button id="multicolor" class="w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" style="background: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);" data-tooltip="Color libre"></button>
+    </div>
+
+    <!-- Herramientas (todos los botones circulares con el mismo espaciado) -->
+    <div class="tools flex bg-white rounded-t-full rounded-b-full p-2 shadow-md justify-evenly mr-4 lg:mb-3 lg:flex-col lg:mr-auto">
+      <button id="brushBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Pincel (tamaño)">
+        <i class="fas fa-brush fa-md"></i>
+      </button>
+      <button id="eraserBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Borrador">
+        <i class="fas fa-eraser"></i>
+      </button>
+      <button id="modeToggleBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Modo simetría (1/2)">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <button id="doubleToggleBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Doble trazo">
+        <i class="fas fa-clone"></i>
+      </button>
+      <button id="resetBtn" class="bg-red-400 w-8 h-8 rounded-full flex items-center justify-center text-white circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Limpiar todo">
+        <i class="fas fa-trash"></i>
+      </button>
+      <button id="settingsBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Suavizado">
+        <i class="fas fa-cog"></i>
+      </button>
+      <a href="https://github.com/Icesofty/Mandala-JS" class="bg-gray-900 w-8 h-8 rounded-full flex items-center justify-center text-white circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <button id="nightModeBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Modo noche">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex z-0 items-center h-full justify-center">
+    <canvas id="drawCanvas" width="2000" height="2000" class="fixed z-0"></canvas>
+  </div>
+
+  <!-- Popups flotantes -->
+  <div id="brushPopup" class="popup-control hidden" style="position: fixed;">
+    <span>Ancho:</span>
+    <input type="range" id="brushSizeSlider" min="1" max="30" step="1" value="4">
+    <span id="brushSizeValue" style="min-width: 30px;">4 px</span>
+  </div>
+  <div id="smoothingPopup" class="popup-control hidden" style="position: fixed;">
+    <span>Suavizado:</span>
+    <input type="range" id="smoothingSlider" min="0" max="1" step="0.01" value="0.4">
+    <span id="smoothingValue">0.40</span>
+  </div>
+
+  <script>
+    new Vue({
+      el: "#app",
+      data: { counter: 0 },
+      methods: {}
+    });
+
+    // ---------- Configuración global ----------
+    let smoothingAlpha = 0.4;
+    let radian = 8;
+    let brushSize = 4;
+    let color = "#1A202C";
+    let isNightMode = false;
+    let bgColor = "#ffffff";
+    let doubleStrokeEnabled = false;
+    let symmetryMode = 1;
+    const DOUBLE_OFFSET = 3;
+    
+    const canvas = document.getElementById("drawCanvas");
+    let ctx = canvas.getContext("2d");
+    const symmetry = canvas.width;
+    const cx = symmetry / 2;
+    const cy = symmetry / 2;
+    
+    let smoothPrevX = null, smoothPrevY = null;
+    let isDrawing = false;
+    
+    function load() {
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, symmetry, symmetry);
+      isDrawing = false;
+      smoothPrevX = smoothPrevY = null;
+    }
+    
+    function getLocalCoordinates(ev) {
+      let offsetX, offsetY;
+      if (ev.type.startsWith("touch")) {
+        const touch = ev.touches[0] || ev.changedTouches[0];
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        offsetX = (touch.clientX - rect.left) * scaleX;
+        offsetY = (touch.clientY - rect.top) * scaleY;
+      } else {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        offsetX = (ev.clientX - rect.left) * scaleX;
+        offsetY = (ev.clientY - rect.top) * scaleY;
+      }
+      return [Math.min(Math.max(0, offsetX), canvas.width), Math.min(Math.max(0, offsetY), canvas.height)];
+    }
+    
+    // Modo 1
+    function getSymmetryPoints(x, y) {
+      const relX = x - cx;
+      const relY = cy - y;
+      const dist = Math.hypot(relX, relY);
+      let angle = Math.atan2(relX, relY);
+      const result = [];
+      for (let i = 0; i < radian; i++) {
+        const theta = angle + ((Math.PI * 2) / radian) * i;
+        let px = cx + Math.sin(theta) * dist;
+        let py = cy - Math.cos(theta) * dist;
+        result.push([px, py]);
+        px = cx - Math.sin(theta) * dist;
+        result.push([px, py]);
+      }
+      return result;
+    }
+    
+    function drawLineMode1(x1, y1, x2, y2) {
+      const startPoints = getSymmetryPoints(x1, y1);
+      const endPoints = getSymmetryPoints(x2, y2);
+      ctx.beginPath();
+      ctx.lineCap = "round";
+      ctx.lineWidth = brushSize;
+      ctx.strokeStyle = color;
+      for (let i = 0; i < startPoints.length; i++) {
+        ctx.moveTo(startPoints[i][0], startPoints[i][1]);
+        ctx.lineTo(endPoints[i][0], endPoints[i][1]);
+      }
+      ctx.stroke();
+    }
+    
+    // Modo 2
+    function drawLineMode2(x1, y1, x2, y2) {
+      const angleStep = (2 * Math.PI) / radian;
+      ctx.beginPath();
+      ctx.lineCap = "round";
+      ctx.lineWidth = brushSize;
+      ctx.strokeStyle = color;
+      for (let sector = 0; sector < radian; sector++) {
+        const theta = sector * angleStep;
+        const cosT = Math.cos(theta);
+        const sinT = Math.sin(theta);
+        const dx1 = x1 - cx, dy1 = y1 - cy;
+        const x1r = cx + dx1 * cosT - dy1 * sinT;
+        const y1r = cy + dx1 * sinT + dy1 * cosT;
+        const dx2 = x2 - cx, dy2 = y2 - cy;
+        const x2r = cx + dx2 * cosT - dy2 * sinT;
+        const y2r = cy + dx2 * sinT + dy2 * cosT;
+        const mx1 = 2 * cx - x1, my1 = y1;
+        const dmx1 = mx1 - cx, dmy1 = my1 - cy;
+        const x1mr = cx + dmx1 * cosT - dmy1 * sinT;
+        const y1mr = cy + dmx1 * sinT + dmy1 * cosT;
+        const mx2 = 2 * cx - x2, my2 = y2;
+        const dmx2 = mx2 - cx, dmy2 = my2 - cy;
+        const x2mr = cx + dmx2 * cosT - dmy2 * sinT;
+        const y2mr = cy + dmx2 * sinT + dmy2 * cosT;
+        
+        ctx.moveTo(x1r, y1r);
+        ctx.lineTo(x2r, y2r);
+        ctx.moveTo(x1mr, y1mr);
+        ctx.lineTo(x2mr, y2mr);
+      }
+      ctx.stroke();
+    }
+    
+    function drawLineWithCurrentMode(x1, y1, x2, y2) {
+      if (symmetryMode === 1) drawLineMode1(x1, y1, x2, y2);
+      else drawLineMode2(x1, y1, x2, y2);
+    }
+    
+    function drawWithDouble(x1, y1, x2, y2) {
+      drawLineWithCurrentMode(x1, y1, x2, y2);
+      if (doubleStrokeEnabled) {
+        drawLineWithCurrentMode(x1 + DOUBLE_OFFSET, y1 + DOUBLE_OFFSET, x2 + DOUBLE_OFFSET, y2 + DOUBLE_OFFSET);
+      }
+    }
+    
+    function startStroke(e) {
+      e.preventDefault();
+      const [x, y] = getLocalCoordinates(e);
+      isDrawing = true;
+      smoothPrevX = x;
+      smoothPrevY = y;
+    }
+    
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const [rawX, rawY] = getLocalCoordinates(e);
+      let smoothX = rawX, smoothY = rawY;
+      if (smoothPrevX !== null && smoothPrevY !== null) {
+        smoothX = smoothingAlpha * rawX + (1 - smoothingAlpha) * smoothPrevX;
+        smoothY = smoothingAlpha * rawY + (1 - smoothingAlpha) * smoothPrevY;
+      }
+      drawWithDouble(smoothPrevX, smoothPrevY, smoothX, smoothY);
+      smoothPrevX = smoothX;
+      smoothPrevY = smoothY;
+    }
+    
+    function endStroke(e) {
+      e.preventDefault();
+      isDrawing = false;
+      smoothPrevX = smoothPrevY = null;
+    }
+    
+    function attachEvents() {
+      canvas.addEventListener("mousedown", startStroke);
+      canvas.addEventListener("mousemove", draw);
+      canvas.addEventListener("mouseup", endStroke);
+      canvas.addEventListener("mouseleave", endStroke);
+      canvas.addEventListener("touchstart", startStroke, { passive: false });
+      canvas.addEventListener("touchmove", draw, { passive: false });
+      canvas.addEventListener("touchend", endStroke);
+      canvas.addEventListener("touchcancel", endStroke);
+    }
+    
+    // UI
+    document.getElementById("darkgray").addEventListener("click", () => { color = "#1A202C"; });
+    document.getElementById("whitecolor").addEventListener("click", () => { color = "#ffffff"; });
+    document.getElementById("red").addEventListener("click", () => { color = "#FC8181"; });
+    document.getElementById("green").addEventListener("click", () => { color = "#4FD1C5"; });
+    document.getElementById("purple").addEventListener("click", () => { color = "#9F7AEA"; });
+    
+    const colorPickerInput = document.createElement("input");
+    colorPickerInput.type = "color";
+    colorPickerInput.style.position = "fixed";
+    colorPickerInput.style.opacity = "0";
+    colorPickerInput.style.pointerEvents = "none";
+    document.body.appendChild(colorPickerInput);
+    document.getElementById("multicolor").addEventListener("click", () => {
+      colorPickerInput.value = color;
+      colorPickerInput.click();
+    });
+    colorPickerInput.addEventListener("input", (e) => {
+      color = e.target.value;
+    });
+    
+    document.getElementById("eraserBtn").addEventListener("click", () => { color = bgColor; });
+    
+    const brushPopup = document.getElementById("brushPopup");
+    const brushBtn = document.getElementById("brushBtn");
+    const brushSlider = document.getElementById("brushSizeSlider");
+    const brushSpan = document.getElementById("brushSizeValue");
+    brushSlider.addEventListener("input", (e) => {
+      brushSize = parseInt(e.target.value);
+      brushSpan.innerText = brushSize + " px";
+    });
+    brushBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const rect = brushBtn.getBoundingClientRect();
+      brushPopup.style.left = rect.left + "px";
+      brushPopup.style.top = (rect.bottom + 5) + "px";
+      brushPopup.classList.toggle("hidden");
+      smoothingPopup.classList.add("hidden");
+    });
+    
+    const smoothingPopup = document.getElementById("smoothingPopup");
+    const settingsBtn = document.getElementById("settingsBtn");
+    const smoothingSlider = document.getElementById("smoothingSlider");
+    const smoothingSpan = document.getElementById("smoothingValue");
+    smoothingSlider.addEventListener("input", (e) => {
+      smoothingAlpha = parseFloat(e.target.value);
+      smoothingSpan.innerText = smoothingAlpha.toFixed(2);
+    });
+    settingsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const rect = settingsBtn.getBoundingClientRect();
+      smoothingPopup.style.left = rect.left + "px";
+      smoothingPopup.style.top = (rect.bottom + 5) + "px";
+      smoothingPopup.classList.toggle("hidden");
+      brushPopup.classList.add("hidden");
+    });
+    
+    window.addEventListener("click", (e) => {
+      if (!brushPopup.contains(e.target) && e.target !== brushBtn) brushPopup.classList.add("hidden");
+      if (!smoothingPopup.contains(e.target) && e.target !== settingsBtn) smoothingPopup.classList.add("hidden");
+    });
+    
+    const doubleBtn = document.getElementById("doubleToggleBtn");
+    doubleBtn.addEventListener("click", () => {
+      doubleStrokeEnabled = !doubleStrokeEnabled;
+      if (doubleStrokeEnabled) doubleBtn.classList.add("double-active");
+      else doubleBtn.classList.remove("double-active");
+    });
+    
+    const modeBtn = document.getElementById("modeToggleBtn");
+    modeBtn.addEventListener("click", () => {
+      symmetryMode = symmetryMode === 1 ? 2 : 1;
+      if (symmetryMode === 2) modeBtn.classList.add("mode-active");
+      else modeBtn.classList.remove("mode-active");
+    });
+    
+    const nightBtn = document.getElementById("nightModeBtn");
+    nightBtn.addEventListener("click", () => {
+      isNightMode = !isNightMode;
+      if (isNightMode) {
+        bgColor = "#1a1a2e";
+        document.body.classList.add("night");
+        nightBtn.innerHTML = '<i class="fas fa-sun"></i>';
+        nightBtn.setAttribute("data-tooltip", "Modo día");
+        if (color === "#ffffff") color = bgColor;
+      } else {
+        bgColor = "#ffffff";
+        document.body.classList.remove("night");
+        nightBtn.innerHTML = '<i class="fas fa-moon"></i>';
+        nightBtn.setAttribute("data-tooltip", "Modo noche");
+        if (color === "#1a1a2e") color = "#1A202C";
+      }
+      load();
+    });
+    
+    document.getElementById("resetBtn").addEventListener("click", () => { load(); });
+    
+    window.addEventListener("load", () => {
+      load();
+      attachEvents();
+      brushSlider.value = brushSize;
+      brushSpan.innerText = brushSize + " px";
+    });
+  </script>
+</body>
+</html>
