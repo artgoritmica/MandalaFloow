@@ -36,5 +36,10 @@ Puedes ver la demo online en: [JustMandala.com](http://justmandala.com/)
 
 ---
 
-_Proyecto original de [Icesofty](https://github.com/Icesofty/Mandala-JS) — fork mejorado con nuevas funcionalidades._
+## Licencia
+
+Este proyecto está bajo la **Licencia MIT**.
+El código base original fue creado por **[Florian ARGAUD (Icesofty)](https://github.com/Icesofty/Mandala-JS)** y esta versión incorpora mejoras y nuevas funcionalidades.
+
+Copyright (c) 2020 Florian ARGAUD — ver archivo [LICENSE](./LICENSE).
 

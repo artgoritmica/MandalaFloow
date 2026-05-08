@@ -82,6 +82,7 @@
     body.night .tools button.bg-red-400 {
       background-color: #c53030;
     }
+    body.night .attribution { background: rgba(26,26,46,0.7) !important; color: #a0aec0 !important; }
     body.night .tools a.bg-gray-900 {
       background-color: #000;
     }
@@ -128,7 +129,7 @@
       <button id="settingsBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Suavizado">
         <i class="fas fa-cog"></i>
       </button>
-      <a href="https://github.com/Icesofty/Mandala-JS" class="bg-gray-900 w-8 h-8 rounded-full flex items-center justify-center text-white circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="GitHub">
+      <a href="https://github.com/tuusuario/MandalaFlow" class="bg-gray-900 w-8 h-8 rounded-full flex items-center justify-center text-white circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="GitHub">
         <i class="fab fa-github"></i>
       </a>
       <button id="nightModeBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Modo noche">
@@ -139,6 +140,11 @@
 
   <div class="flex z-0 items-center h-full justify-center">
     <canvas id="drawCanvas" width="2000" height="2000" class="fixed z-0"></canvas>
+  </div>
+
+  <!-- Atribución MIT -->
+  <div class="attribution fixed bottom-0 left-0 w-full text-center text-xs text-gray-400 z-50 py-1" style="background: rgba(255,255,255,0.6); backdrop-filter: blur(4px);">
+    <span>MandalaFlow — basado en <a href="https://github.com/Icesofty/Mandala-JS" target="_blank" class="underline">Mandala-JS</a> por Florian ARGAUD (MIT)</span>
   </div>
 
   <!-- Popups flotantes -->
