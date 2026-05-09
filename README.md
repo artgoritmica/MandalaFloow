@@ -4,13 +4,14 @@ Aplicación interactiva de creación de mandalas con simetría radial. Construid
 
 ## Características
 
-- 🖌️ **Pincel ajustable** (1–30px) con suavizado progresivo
+- 🖌️ **Pincel ajustable** (1–30px) con suavizado progresivo (0.15 por defecto)
 - 🎨 **Paleta de colores**: Negro, Blanco, Rojo, Verde, Morado y selector de color libre
 - 🔁 **2 modos de simetría**: Estilo 1 (puntos reflejados) y Estilo 2 (rotación pura)
-- 🪞 **Doble trazo** para efectos aún más complejos
-- 🌙 **Modo noche / día**
-- 📱 **Compatible con pantallas táctiles**
+- 🌙 **Modo noche / día** (cambia automáticamente a blanco en modo noche)
+- 📱 **Compatible con iPhone, iPad, Android y escritorio**
 - ⚙️ **Control de suavizado** en tiempo real
+- 📥 **Exportación a PNG** desde el panel derecho
+- ℹ️ **Enlace al repositorio** desde el panel de descarga
 
 ## Cómo usarlo
 
