@@ -227,8 +227,8 @@
       border: 2px solid black;
     }
     
-    /* === Responsive: móvil vertical === */
-    @media (max-width: 767px) {
+    /* === Responsive: móvil + iPad portrait (ancho ≤ 1024px en vertical) === */
+    @media (max-width: 1024px) and (orientation: portrait) {
       #downloadZone {
         right: auto;
         left: 50%;
@@ -244,15 +244,26 @@
         margin-left: 2px;
       }
       #canvasWrap canvas {
-        max-width: 100vw;
-        max-height: calc(100vh - 80px);
+        max-width: 90vw;
+        max-height: calc(100vh - 90px);
+      }
+      #app {
+        padding-top: 4px;
       }
     }
-    /* === Responsive: tablet (iPad vertical) === */
-    @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    /* === Responsive: pantalla pequeña en landscape === */
+    @media (max-height: 500px) {
+      #downloadZone {
+        right: 6px;
+        left: auto;
+        top: 50%;
+        bottom: auto;
+        transform: translateY(-50%);
+        flex-direction: column;
+        padding: 8px 6px;
+      }
       #canvasWrap canvas {
-        max-width: 90vw;
-        max-height: 90vh;
+        max-height: 85vh;
       }
     }
   </style>
