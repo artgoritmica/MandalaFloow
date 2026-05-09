@@ -226,6 +226,35 @@
     .border-black {
       border: 2px solid black;
     }
+    
+    /* === Responsive: móvil vertical === */
+    @media (max-width: 767px) {
+      #downloadZone {
+        right: auto;
+        left: 50%;
+        top: auto;
+        bottom: 10px;
+        transform: translateX(-50%);
+        flex-direction: row;
+        padding: 6px 12px;
+        gap: 6px;
+      }
+      #downloadZone .info-btn {
+        margin-top: 0;
+        margin-left: 2px;
+      }
+      #canvasWrap canvas {
+        max-width: 100vw;
+        max-height: calc(100vh - 80px);
+      }
+    }
+    /* === Responsive: tablet (iPad vertical) === */
+    @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+      #canvasWrap canvas {
+        max-width: 90vw;
+        max-height: 90vh;
+      }
+    }
   </style>
 </head>
 <body class="box-border w-screen h-screen">
