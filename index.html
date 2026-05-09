@@ -128,6 +128,52 @@
       background-color: #4a5568 !important;
       color: white !important;
     }
+    /* Zona de descarga: mismo estilo que paleta/herramientas */
+    #downloadZone {
+      position: fixed;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 100;
+      background: white;
+      padding: 12px 8px;
+      border-radius: 999px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    #downloadZone button {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #edf2f7;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4a5568;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    #downloadZone button:hover {
+      transform: scale(1.1);
+      background: #e2e8f0;
+    }
+    #downloadZone button:active {
+      transform: scale(0.92);
+    }
+    body.night #downloadZone {
+      background: #2d3748;
+    }
+    body.night #downloadZone button {
+      background: #4a5568;
+      color: #e2e8f0;
+    }
+    body.night #downloadZone button:hover {
+      background: #718096;
+    }
     .double-active {
       background-color: #4a5568 !important;
       color: white !important;
@@ -194,17 +240,14 @@
       <button id="modeToggleBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Modo simetría (1/2)">
         <i class="fas fa-sync-alt"></i>
       </button>
-      <button id="doubleToggleBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Doble trazo">
-        <i class="fas fa-clone"></i>
-      </button>
       <button id="resetBtn" class="bg-red-400 w-8 h-8 rounded-full flex items-center justify-center text-white circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Limpiar todo">
         <i class="fas fa-trash"></i>
       </button>
       <button id="settingsBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Suavizado">
         <i class="fas fa-cog"></i>
       </button>
-      <a href="https://github.com/artgoritmica/MandalaFloow" class="bg-gray-900 w-8 h-8 rounded-full flex items-center justify-center text-white circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="GitHub">
-        <i class="fab fa-github"></i>
+      <a href="https://github.com/artgoritmica/MandalaFloow" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Acerca de…">
+        <i class="fas fa-info"></i>
       </a>
       <button id="nightModeBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Modo noche">
         <i class="fas fa-moon"></i>
@@ -247,9 +290,7 @@
     let color = "#1A202C";
     let isNightMode = false;
     let bgColor = "#ffffff";
-    let doubleStrokeEnabled = false;
     let symmetryMode = 1;
-    const DOUBLE_OFFSET = 3;
     
     const canvas = document.getElementById("drawCanvas");
     let ctx = canvas.getContext("2d");
@@ -359,9 +400,6 @@
     
     function drawWithDouble(x1, y1, x2, y2) {
       drawLineWithCurrentMode(x1, y1, x2, y2);
-      if (doubleStrokeEnabled) {
-        drawLineWithCurrentMode(x1 + DOUBLE_OFFSET, y1 + DOUBLE_OFFSET, x2 + DOUBLE_OFFSET, y2 + DOUBLE_OFFSET);
-      }
     }
     
     function startStroke(e) {
@@ -479,13 +517,7 @@
     document.addEventListener("mousedown", (e) => setTimeout(() => closeAllPopups(e), 10));
     document.addEventListener("touchstart", (e) => setTimeout(() => closeAllPopups(e), 10));
     
-    const doubleBtn = document.getElementById("doubleToggleBtn");
-    doubleBtn.addEventListener("click", () => {
-      doubleStrokeEnabled = !doubleStrokeEnabled;
-      if (doubleStrokeEnabled) doubleBtn.classList.add("double-active");
-      else doubleBtn.classList.remove("double-active");
-    });
-    
+
     const modeBtn = document.getElementById("modeToggleBtn");
     modeBtn.addEventListener("click", () => {
       symmetryMode = symmetryMode === 1 ? 2 : 1;
@@ -523,6 +555,67 @@
       brushSlider.value = brushSize;
       brushSpan.innerText = brushSize + " px";
     });
+    // === Exportación ===
+    function flashBtn(btn) {
+      if (!btn) return;
+      btn.style.transform = 'scale(0.85)';
+      setTimeout(function() { btn.style.transform = ''; }, 150);
+    }
+    function downloadPNG() {
+      flashBtn(document.getElementById('downloadPngBtn'));
+      try {
+        var link = document.createElement('a');
+        link.download = 'mandala.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch(e) { console.warn('Export PNG:', e.message); }
+    }
+    function downloadSVG(strokesOnly) {
+      flashBtn(strokesOnly ? document.getElementById('downloadSvgOutlineBtn') : document.getElementById('downloadSvgBtn'));
+      try {
+        var w = canvas.width, h = canvas.height;
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">';
+        if (!strokesOnly) svg += '<rect width="' + w + '" height="' + h + '" fill="' + bgColor + '"/>';
+        svg += '<image href="' + canvas.toDataURL('image/png') + '" width="' + w + '" height="' + h + '"/>';
+        svg += '</svg>';
+        var blob = new Blob([svg], { type: 'image/svg+xml' });
+        var link = document.createElement('a');
+        link.download = strokesOnly ? 'mandala-outline.svg' : 'mandala.svg';
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      } catch(e) { console.warn('Export SVG:', e.message); }
+    }
+    document.getElementById('downloadPngBtn').addEventListener('click', downloadPNG);
+    document.getElementById('downloadSvgBtn').addEventListener('click', function() { downloadSVG(false); });
+    document.getElementById('downloadSvgOutlineBtn').addEventListener('click', function() { downloadSVG(true); });
+
+    // Tooltips para zona de descarga
+    document.querySelectorAll('#downloadZone button').forEach(function(el) {
+      var tip = el.getAttribute('data-tooltip');
+      if (tip) {
+        el.addEventListener('mouseenter', function(e) {
+          var t = document.createElement('div');
+          t.textContent = tip;
+          t.style.cssText = 'position:fixed;background:#1a202c;color:#fff;padding:3px 10px;border-radius:6px;font-size:0.7rem;white-space:nowrap;z-index:9999;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+          var r = el.getBoundingClientRect();
+          t.style.left = (r.right + 12) + 'px';
+          t.style.top = (r.top + r.height/2 - 9) + 'px';
+          t.id = 'dzTooltip';
+          document.body.appendChild(t);
+        });
+        el.addEventListener('mouseleave', function() {
+          var t = document.getElementById('dzTooltip');
+          if (t) t.remove();
+        });
+      }
+    });
+    
   </script>
+  <div id="downloadZone">
+    <button id="downloadPngBtn" data-tooltip="PNG - Raster"><span style="font-weight:700;font-size:0.6rem;">PNG</span></button>
+    <button id="downloadSvgBtn" data-tooltip="SVG - Vector"><span style="font-weight:600;font-size:0.6rem;">SVG</span></button>
+    <button id="downloadSvgOutlineBtn" data-tooltip="SVG - Solo contorno"><span style="font-weight:600;font-size:0.5rem;">SVG<sub style="font-size:0.4rem;">ₒ</sub></span></button>
+  </div>
 </body>
 </html>
