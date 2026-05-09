@@ -174,6 +174,22 @@
     body.night #downloadZone button:hover {
       background: #718096;
     }
+    #downloadZone .info-btn {
+      margin-top: 4px;
+      background: #cbd5e0 !important;
+      color: #4a5568 !important;
+    }
+    #downloadZone .info-btn:hover {
+      background: #a0aec0 !important;
+      color: #2d3748 !important;
+    }
+    body.night #downloadZone .info-btn {
+      background: #4a5568 !important;
+      color: #e2e8f0 !important;
+    }
+    body.night #downloadZone .info-btn:hover {
+      background: #718096 !important;
+    }
     .double-active {
       background-color: #4a5568 !important;
       color: white !important;
@@ -246,9 +262,7 @@
       <button id="settingsBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Suavizado">
         <i class="fas fa-cog"></i>
       </button>
-      <a href="https://github.com/artgoritmica/MandalaFloow" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Acerca de…">
-        <i class="fas fa-info"></i>
-      </a>
+
       <button id="nightModeBtn" class="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-700 circle-btn mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Modo noche">
         <i class="fas fa-moon"></i>
       </button>
@@ -272,8 +286,8 @@
   </div>
   <div id="smoothingPopup" class="popup-control" style="position: fixed; display: none;">
     <span>Suavizado:</span>
-    <input type="range" id="smoothingSlider" min="0" max="1" step="0.01" value="0.4">
-    <span id="smoothingValue">0.40</span>
+    <input type="range" id="smoothingSlider" min="0" max="1" step="0.01" value="0.15">
+    <span id="smoothingValue">0.15</span>
   </div>
 
   <script>
@@ -284,7 +298,7 @@
     });
 
     // ---------- Configuración global ----------
-    let smoothingAlpha = 0.4;
+    let smoothingAlpha = 0.15;
     let radian = 8;
     let brushSize = 4;
     let color = "#1A202C";
@@ -529,19 +543,19 @@
     nightBtn.addEventListener("click", () => {
       isNightMode = !isNightMode;
       if (isNightMode) {
-        bgColor = "#1a1a2e";
+        bgColor = "#111111";
         document.body.classList.add("night");
-        document.getElementById("canvasWrap").style.backgroundColor = "#1a1a2e";
+        document.getElementById("canvasWrap").style.backgroundColor = "#111111";
         nightBtn.innerHTML = '<i class="fas fa-sun"></i>';
         nightBtn.setAttribute("data-tooltip", "Modo día");
-        if (color === "#ffffff") color = bgColor;
+        color = "#ffffff";
       } else {
         bgColor = "#ffffff";
         document.body.classList.remove("night");
         document.getElementById("canvasWrap").style.backgroundColor = "#ffffff";
         nightBtn.innerHTML = '<i class="fas fa-moon"></i>';
         nightBtn.setAttribute("data-tooltip", "Modo noche");
-        if (color === "#1a1a2e") color = "#1A202C";
+        color = "#1A202C";
       }
       load();
     });
@@ -589,8 +603,6 @@
       
       // Vincular botones de descarga (ahora el DOM existe)
       document.getElementById('downloadPngBtn').addEventListener('click', downloadPNG);
-      document.getElementById('downloadSvgBtn').addEventListener('click', function() { downloadSVG(false); });
-      document.getElementById('downloadSvgOutlineBtn').addEventListener('click', function() { downloadSVG(true); });
       
       // Tooltips para zona de descarga
       document.querySelectorAll('#downloadZone button').forEach(function(el) {
@@ -616,9 +628,11 @@
     
   </script>
   <div id="downloadZone">
-    <button id="downloadPngBtn" data-tooltip="PNG - Raster"><span style="font-weight:700;font-size:0.6rem;">PNG</span></button>
-    <button id="downloadSvgBtn" data-tooltip="SVG - Vector"><span style="font-weight:600;font-size:0.6rem;">SVG</span></button>
-    <button id="downloadSvgOutlineBtn" data-tooltip="SVG - Solo contorno"><span style="font-weight:600;font-size:0.5rem;">SVG<sub style="font-size:0.4rem;">ₒ</sub></span></button>
+    <button id="downloadPngBtn" data-tooltip="PNG"><span style="font-weight:700;font-size:0.6rem;">PNG</span></button>
+    <button id="downloadSvgBtn" disabled style="opacity:0.4;cursor:default;" data-tooltip="Próximamente"><span style="font-weight:600;font-size:0.6rem;">SVG</span></button>
+    <a href="https://github.com/artgoritmica/MandalaFloow" class="info-btn" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:0.7rem;" data-tooltip="Acerca de…">
+      <i class="fas fa-info" style="font-size:0.8rem;"></i>
+    </a>
   </div>
 </body>
 </html>
