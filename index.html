@@ -251,6 +251,13 @@
         padding-top: 4px;
       }
     }
+    /* === Responsive: iPad landscape === */
+    @media (min-width: 800px) and (orientation: landscape) {
+      #canvasWrap canvas {
+        max-width: calc(100vw - 140px);
+        max-height: calc(100vh - 20px);
+      }
+    }
     /* === Responsive: pantalla pequeña en landscape === */
     @media (max-height: 500px) {
       #downloadZone {
