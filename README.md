@@ -1,5 +1,3 @@
-![](https://www.independence.dev/img/mandala2.gif)
-
 # MandalaFlow 🎨
 
 Aplicación interactiva de creación de mandalas con simetría radial. Construida con **Vanilla JS + Canvas + Vue.js**.
@@ -32,7 +30,7 @@ Ninguno. Solo necesitas un navegador moderno.
 
 ## Demo
 
-Puedes ver la demo online en: [JustMandala.com](http://justmandala.com/)
+Pruébalo online: [mandalafloow.onrender.com](https://mandalafloow.onrender.com)
 
 ---
 
