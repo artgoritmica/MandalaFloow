@@ -40,21 +40,69 @@
     .popup-control {
       position: absolute;
       background: white;
-      border-radius: 2rem;
+      border-radius: 1rem;
       padding: 0.5rem 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
       z-index: 200;
       display: flex;
-      gap: 0.5rem;
+      gap: 0.75rem;
       align-items: center;
       font-size: 0.8rem;
+      border: 1px solid rgba(0,0,0,0.06);
+      animation: fadeIn 0.15s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     body.night .popup-control {
       background: #2d3748;
       color: #e2e8f0;
+      border-color: rgba(255,255,255,0.08);
     }
-    .popup-control input {
-      width: 120px;
+    .popup-control input[type="range"] {
+      width: 100px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #cbd5e0;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .popup-control input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #4a5568;
+      border: 2px solid white;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: transform 0.1s;
+    }
+    .popup-control input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    .popup-control input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #4a5568;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+    body.night .popup-control input[type="range"] {
+      background: #4a5568;
+    }
+    body.night .popup-control input[type="range"]::-webkit-slider-thumb {
+      background: #e2e8f0;
+      border-color: #2d3748;
+    }
+    body.night .popup-control input[type="range"]::-moz-range-thumb {
+      background: #e2e8f0;
+      border-color: #2d3748;
     }
     .mode-active {
       background-color: #4a5568 !important;
@@ -106,7 +154,9 @@
       <button id="green" class="bg-teal-400 w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Verde"></button>
       <button id="purple" class="bg-purple-500 w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" data-tooltip="Morado"></button>
       <!-- Arcoiris más brillante -->
-      <button id="multicolor" class="w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" style="background: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);" data-tooltip="Color libre"></button>
+      <label id="colorPickerLabel" class="w-8 h-8 rounded-full mr-2 ml-2 mb-auto mt-auto lg:mb-2 lg:mt-2 lg:mr-auto lg:ml-auto" style="background: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); cursor: pointer;" data-tooltip="Elegir color">
+        <input type="color" id="colorPickerInput" value="#1A202C" style="width:0;height:0;padding:0;border:none;opacity:0;position:absolute;pointer-events:none;">
+      </label>
     </div>
 
     <!-- Herramientas (todos los botones circulares con el mismo espaciado) -->
@@ -336,17 +386,7 @@
     document.getElementById("green").addEventListener("click", () => { color = "#4FD1C5"; });
     document.getElementById("purple").addEventListener("click", () => { color = "#9F7AEA"; });
     
-    const colorPickerInput = document.createElement("input");
-    colorPickerInput.type = "color";
-    colorPickerInput.style.position = "fixed";
-    colorPickerInput.style.opacity = "0";
-    colorPickerInput.style.pointerEvents = "none";
-    document.body.appendChild(colorPickerInput);
-    document.getElementById("multicolor").addEventListener("click", () => {
-      colorPickerInput.value = color;
-      colorPickerInput.click();
-    });
-    colorPickerInput.addEventListener("input", (e) => {
+    document.getElementById("colorPickerInput").addEventListener("input", (e) => {
       color = e.target.value;
     });
     
@@ -362,11 +402,14 @@
     });
     brushBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const rect = brushBtn.getBoundingClientRect();
-      brushPopup.style.left = rect.left + "px";
-      brushPopup.style.top = (rect.bottom + 5) + "px";
-      brushPopup.classList.toggle("hidden");
-      smoothingPopup.classList.add("hidden");
+      const wasHidden = brushPopup.classList.contains("hidden");
+      closeAllPopups(e);
+      if (wasHidden) {
+        const rect = brushBtn.getBoundingClientRect();
+        brushPopup.style.left = rect.left + "px";
+        brushPopup.style.top = (rect.bottom + 5) + "px";
+        brushPopup.classList.remove("hidden");
+      }
     });
     
     const smoothingPopup = document.getElementById("smoothingPopup");
@@ -379,17 +422,24 @@
     });
     settingsBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const rect = settingsBtn.getBoundingClientRect();
-      smoothingPopup.style.left = rect.left + "px";
-      smoothingPopup.style.top = (rect.bottom + 5) + "px";
-      smoothingPopup.classList.toggle("hidden");
-      brushPopup.classList.add("hidden");
+      const wasHidden = smoothingPopup.classList.contains("hidden");
+      closeAllPopups(e);
+      if (wasHidden) {
+        const rect = settingsBtn.getBoundingClientRect();
+        smoothingPopup.style.left = rect.left + "px";
+        smoothingPopup.style.top = (rect.bottom + 5) + "px";
+        smoothingPopup.classList.remove("hidden");
+      }
     });
     
-    window.addEventListener("click", (e) => {
+    function closeAllPopups(e) {
       if (!brushPopup.contains(e.target) && e.target !== brushBtn) brushPopup.classList.add("hidden");
       if (!smoothingPopup.contains(e.target) && e.target !== settingsBtn) smoothingPopup.classList.add("hidden");
-    });
+    }
+    document.addEventListener("mousedown", closeAllPopups);
+    document.addEventListener("touchstart", closeAllPopups);
+    brushPopup.addEventListener("mousedown", (e) => e.stopPropagation());
+    smoothingPopup.addEventListener("mousedown", (e) => e.stopPropagation());
     
     const doubleBtn = document.getElementById("doubleToggleBtn");
     doubleBtn.addEventListener("click", () => {
