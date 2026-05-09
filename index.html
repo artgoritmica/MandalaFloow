@@ -499,12 +499,14 @@
       if (isNightMode) {
         bgColor = "#1a1a2e";
         document.body.classList.add("night");
+        document.getElementById("canvasWrap").style.backgroundColor = "#1a1a2e";
         nightBtn.innerHTML = '<i class="fas fa-sun"></i>';
         nightBtn.setAttribute("data-tooltip", "Modo día");
         if (color === "#ffffff") color = bgColor;
       } else {
         bgColor = "#ffffff";
         document.body.classList.remove("night");
+        document.getElementById("canvasWrap").style.backgroundColor = "#ffffff";
         nightBtn.innerHTML = '<i class="fas fa-moon"></i>';
         nightBtn.setAttribute("data-tooltip", "Modo noche");
         if (color === "#1a1a2e") color = "#1A202C";
@@ -516,6 +518,7 @@
     
     window.addEventListener("load", () => {
       load();
+      document.getElementById("canvasWrap").style.backgroundColor = "#ffffff";
       attachEvents();
       brushSlider.value = brushSize;
       brushSpan.innerText = brushSize + " px";
